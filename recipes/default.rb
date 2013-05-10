@@ -7,6 +7,13 @@
 # All rights reserved - Do Not Redistribute
 #
 #
+#
+
+
+locales "es_ES.ISO-8859-1 ISO-8859-1" do
+  action :add
+end
+
 package "courier-imap"
 
 bash "create_maildir" do
@@ -30,7 +37,7 @@ service "bind9" do
   action :nothing
 end
 
-zones_dir = "/etc/bind/zones"
+zones_dir = "/var/cache/bind/"
 
 directory zones_dir
 
@@ -55,13 +62,20 @@ node[:distribuidos][:zones].each do |name,data|
     mode "0644"
     variables(
       :domain => name,
-      :data => data
+      :data => data,
+      :ipaddress => node[:distribuidos][:my_ipaddress] || node[:ipaddress]
     )
     notifies :restart, "service[bind9]"
   end
 end
 
 package "squirrelmail"
+
+file "/etc/squirrelmail/config_local.php" do
+  content "<?php\n$squirrelmail_default_language = 'es_ES';\n$theme_default = #{rand(52)};$provider_name = $org_name='#{node["fqdn"]}';\n$domain='#{node["postfix"]["mydomain"]}';\n"
+  mode "0644"
+end
+
 service "apache2" do
   supports [ :restart ]
 end
@@ -76,7 +90,7 @@ file "/etc/procmailrc" do
 end
 
 (1..10).each do | id |
-  user "user#{id}" do
+  user "usuario#{id}" do
   shell "/bin/bash"
   home "/home/user#{id}"
   #Creado con openssl passwd -1 distribuidos

@@ -14,7 +14,7 @@ $TTL <%= @data['global_ttl'] || "1D" %>
 <% @data['mx'].each do |mx| -%>
                 IN              MX <%= mx['priority'] %>           <%= mx['host'] %>
 <% end %>
-ns              IN              A               <%= node[:ipaddress] %>
+ns              IN              A               <%= @ipaddress %>
 
 
 <% @data['records'].each do |record| -%>

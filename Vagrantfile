@@ -2,16 +2,17 @@
 # vi: set ft=ruby :
 
 ipaddress = "192.168.178.10"
+domain = "unlp.edu"
 
 Vagrant.configure("2") do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
-  config.vm.hostname = "mail.unlp.edu"
+  config.vm.hostname = "mail.#{domain}"
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "ubuntu-12.04.2-cespi-amd64"
+  config.vm.box = "postgrado_ubuntu-12.04"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
@@ -75,29 +76,41 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :chef_solo do |chef|
     chef.json = {
+      :locales => {
+        :available => [ "es_ES.UTF-8 UTF-8", "es_AR.UTF-8 UTF-8", "es_ES.ISO-8859-1 ISO-8859-1"]
+      },
       :authorization => {
         :sudo => {
           :groups => ['sudo'],
           :passwordless => true
         }
       },
+      :resolver => {
+        :nameservers => [ "127.0.0.1" ],
+        "search" => domain,
+        "options" => {
+          "timeout" => 2, "rotate" => nil
+        }
+      },
       :postfix => {
           :mail_relay_networks => nil, #"10.3.3.0/24",
           :mail_type => "master",
-          :mydomain => "unlp.edu",
-          :myorigin => "unlp.edu",
-          :myhostname => "unlp.edu",
+          :extradomains => "mail.#{domain}",
+          :mydomain => domain,
+          :myorigin => domain,
+          :myhostname => domain,
           :use_procmail => true
       },
       :distribuidos => {
+        :my_ipaddress => ipaddress,
         :slave_zones => { 
-          'postgrado.edu' => {
-            :masters => "192.168.178.11"
+          'acme.com' => {
+            :masters => "192.168.178.100"
           }
         },
         :zones => {
-          'unlp.edu' => {
-            :ns => %w( ns.postgrado.edu. ),
+          domain => {
+            :ns => %w( ns.acme.com. ),
             :mx => [{ :priority => 1, :host => 'mail'}],
             :records => [
               {:name => 'mail', :type => 'A', :ip => ipaddress }
@@ -108,9 +121,12 @@ Vagrant.configure("2") do |config|
     }
 
     chef.run_list = [
+        "recipe[apt]",
+        "recipe[locales]",
         "recipe[sudo]",
         "recipe[unlp.edu::default]",
         "recipe[postfix::server]",
+        "recipe[resolver]"
     ]
   end
 end
