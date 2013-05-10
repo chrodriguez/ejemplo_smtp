@@ -1,8 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-ipaddress = "192.168.178.10"
-domain = "unlp.edu"
+ipaddress = "192.168.178.100"
+domain = "acme.com"
+slave_domain = "unlp.edu"
+slave_ipaddress = "192.168.178.10"
 
 Vagrant.configure("2") do |config|
   # All Vagrant configuration is done here. The most common configuration
@@ -104,13 +106,13 @@ Vagrant.configure("2") do |config|
       :distribuidos => {
         :my_ipaddress => ipaddress,
         :slave_zones => { 
-          'acme.com' => {
-            :masters => "192.168.178.100"
+          slave_domain => {
+            :masters => slave_ipaddress
           }
         },
         :zones => {
           domain => {
-            :ns => %w( ns.acme.com. ),
+            :ns => [ "ns.#{slave_domain}." ],
             :mx => [{ :priority => 1, :host => 'mail'}],
             :records => [
               {:name => 'mail', :type => 'A', :ip => ipaddress }
