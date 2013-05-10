@@ -9,6 +9,7 @@
 #
 #
 
+all = []
 
 locales "es_ES.ISO-8859-1 ISO-8859-1" do
   action :add
@@ -29,6 +30,7 @@ user "distribuidos" do
   #Creado con openssl passwd -1 distribuidos
   password "$1$V5ZWhmTP$FJv67kPAacx72XNNgU7WR0"
   supports({ :manage_home => true })
+  all << "distribuidos"
 end
 
 package "bind9"
@@ -102,7 +104,9 @@ end
   password "$1$V5ZWhmTP$FJv67kPAacx72XNNgU7WR0"
   supports({ :manage_home => true })
   end
+  all << "usuario#{id}"
 end
+
 
 bash "mod_rewrite" do
   command "a2enmod rewrite"
@@ -112,3 +116,7 @@ file "/etc/apache2/sites-enabled/redirect.conf" do
   content "RedirectMatch ^/$ /squirrelmail"
   notifies :restart, "service[apache2]"
 end
+
+node.set[:postfix][:aliases] = {'todos' => all }
+
+include_recipe "postfix::aliases"

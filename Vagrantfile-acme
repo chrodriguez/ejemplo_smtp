@@ -100,9 +100,10 @@ Vagrant.configure("2") do |config|
           :mydomain => domain,
           :myorigin => domain,
           :myhostname => domain,
+          :inet_interfaces => 'all',
           :use_procmail => true,
           :smtp_use_tls => "yes",
-          :relayhost => "[smtp.gmail.com]:587",
+          :relayhost => "", #"[smtp.gmail.com]:587",
           :smtp_sasl_auth_enable => "yes",
           :smtp_sasl_passwd => "changeme",
           :smtp_sasl_user_name => "chrodriguez"
@@ -132,8 +133,8 @@ Vagrant.configure("2") do |config|
         "recipe[sudo]",
         "recipe[postfix::server]",
         "recipe[postfix::sasl_auth]",
-        "recipe[resolver]",
-        "recipe[unlp.edu::default]"
+        "recipe[unlp.edu::default]",
+        "recipe[resolver]"
     ]
   end
 end
