@@ -21,6 +21,7 @@ bash "create_maildir" do
   not_if "test -d /etc/skel/Maildir"
 end
 
+
 user "distribuidos" do
   gid "sudo"
   shell "/bin/bash"
@@ -85,6 +86,10 @@ link "/etc/apache2/sites-enabled/squirrelmail.conf" do
   notifies :restart, "service[apache2]"
 end
 
+link "/etc/postfix/cacert.pem" do
+  to "/etc/ssl/certs/Equifax_Secure_CA.pem"
+end
+
 file "/etc/procmailrc" do
   content "DEFAULT=$HOME/Maildir/"
 end
@@ -97,4 +102,9 @@ end
   password "$1$V5ZWhmTP$FJv67kPAacx72XNNgU7WR0"
   supports({ :manage_home => true })
   end
+end
+
+file "/etc/apache2/sites-enabled/redirect.conf" do
+  content "RedirectMatch $/ /squirrelmail"
+  notifies :restart, "service[apache2]"
 end

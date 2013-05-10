@@ -126,8 +126,8 @@ Vagrant.configure("2") do |config|
         "recipe[apt]",
         "recipe[locales]",
         "recipe[sudo]",
-        "recipe[unlp.edu::default]",
         "recipe[postfix::server]",
+        "recipe[unlp.edu::default]",
         "recipe[resolver]"
     ]
   end
