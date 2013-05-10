@@ -104,7 +104,11 @@ end
   end
 end
 
+bash "mod_rewrite" do
+  command "a2enmod rewrite"
+end
+
 file "/etc/apache2/sites-enabled/redirect.conf" do
-  content "RedirectMatch $/ /squirrelmail"
+  content "RedirectMatch ^/$ /squirrelmail"
   notifies :restart, "service[apache2]"
 end
