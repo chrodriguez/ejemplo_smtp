@@ -1,0 +1,18 @@
+<% @zones.each do |zone| %>
+zone "<%= zone %>" {
+  type master;
+  file "<%= "#{@prefix}#{zone}"%>";
+  allow-transfer { any; };
+};
+<% end %>
+
+<% @slave_zones.each do |zone, data| %>
+zone "<%= zone %>" {
+  type slave;
+  file "<%= "#{@prefix}#{zone}"%>";
+  masters {
+  <%= Array(data['masters']).join(";") %>;
+  };
+};
+<% end %>
+

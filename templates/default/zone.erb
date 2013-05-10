@@ -1,0 +1,23 @@
+$TTL <%= @data['global_ttl'] || "1D" %>
+@ IN SOA ns <%= "root.#{@domain}." %> (
+                <%= @data['serial'] || Time.now.strftime("%Y%m%d%H0")%> ; serial [yyyyMMddNN]
+                4H      ; refresh
+                30M     ; retry
+                1W      ; expiry
+                1D      ; minimum
+);
+
+                IN              NS              ns
+<% Array(@data['ns']).each do |ns| -%>
+                IN              NS              <%= ns %>
+<% end %>
+<% @data['mx'].each do |mx| -%>
+                IN              MX <%= mx['priority'] %>           <%= mx['host'] %>
+<% end %>
+ns              IN              A               <%= node[:ipaddress] %>
+
+
+<% @data['records'].each do |record| -%>
+<%=record['name'] %>   <%= if record['ttl'] then record['ttl'] end %> IN   <%= record['type'] %>   <%= record['ip'] %>
+<% end %>
+
